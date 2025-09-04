@@ -1,0 +1,195 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1"/>
+  <title>木頭選擇小幫手</title>
+  <script src="https://static.line-scdn.net/liff/edge/2/sdk.js"></script>
+  <style>
+    :root{--bg:#f6f7f9;--fg:#111;--muted:#666;--card:#fff;--br:#eaeaea;--pri:#111;}
+    body{font-family:system-ui,-apple-system,"Noto Sans TC",Segoe UI,Roboto; margin:0; background:var(--bg); color:var(--fg);}
+    .wrap{max-width:560px;margin:0 auto;padding:20px}
+    .card{background:var(--card);border:1px solid var(--br);border-radius:16px;box-shadow:0 8px 24px rgba(0,0,0,.06);padding:18px}
+    h1{font-size:20px;margin:0 0 12px}
+    p.muted{color:var(--muted);margin:0 0 14px}
+    .grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+    .grid .full{grid-column:1/-1}
+    label{font-size:12px;color:#444;margin:4px 0;display:block}
+    input,select,textarea{width:100%;padding:12px;border:1px solid #ddd;border-radius:12px;background:#fff;font-size:14px;outline:none;transition:.2s}
+    input:focus,select:focus,textarea:focus{box-shadow:0 0 0 3px rgba(0,0,0,.08)}
+    .actions{display:flex;gap:10px;margin-top:10px}
+    .btn{flex:1;padding:12px 14px;border-radius:12px;border:0;cursor:pointer;font-weight:600}
+    .btn-primary{background:var(--pri);color:#fff}
+    .btn-secondary{background:#eceff3}
+    .note{background:#f0f2f5;border:1px solid #e5e7eb;border-radius:12px;padding:10px;font-size:14px;margin:10px 0;color:#333}
+    .hidden{display:none}
+    .spinner{width:18px;height:18px;border:3px solid #ddd;border-top-color:#333;border-radius:50%;animation:spin 1s linear infinite;display:inline-block;vertical-align:-3px}
+    @keyframes spin{to{transform:rotate(360deg)}}
+    .preview{margin-top:12px;display:grid;grid-template-columns:1fr;gap:10px}
+    .item{border:1px solid #eee;border-radius:12px;padding:10px;display:flex;gap:10px}
+    .item img{width:72px;height:72px;object-fit:cover;border-radius:10px;border:1px solid #eee}
+    .badge{font-size:12px;border:1px solid #eee;border-radius:999px;padding:4px 8px;background:#fafafa;margin-right:6px}
+  </style>
+</head>
+<body>
+<div class="wrap">
+  <div class="card">
+    <h1>木頭選擇小幫手</h1>
+    <p class="muted">填寫需求後，系統會計算並把 TOP 5 推薦直接送到你的聊天室。</p>
+
+    <div class="note hidden" id="status"></div>
+
+    <div class="grid">
+      <div class="full">
+        <label>Email（可用於寄送清單）</label>
+        <input id="email" type="email" placeholder="you@example.com"/>
+      </div>
+      <div>
+        <label>預算（NT$，必填）</label>
+        <input id="budget" type="number" min="0" placeholder="15000" required/>
+      </div>
+      <div>
+        <label>硬度偏好（1~5）</label>
+        <select id="hardness">
+          <option>1</option><option>2</option><option selected>3</option><option>4</option><option>5</option>
+        </select>
+      </div>
+      <div>
+        <label>常態濕度（%）</label>
+        <input id="humidity" type="number" min="0" max="100" placeholder="70"/>
+      </div>
+      <div>
+        <label>用途</label>
+        <select id="usage">
+          <option value="dining" selected>餐桌</option>
+          <option value="desk">書桌</option>
+          <option value="meeting">會議桌</option>
+          <option value="workbench">工作台</option>
+        </select>
+      </div>
+      <div>
+        <label>色調</label>
+        <select id="tone">
+          <option value="any" selected>不拘</option>
+          <option value="light">淺色</option><option value="medium">中性</option><option value="dark">深色</option>
+        </select>
+      </div>
+      <div>
+        <label>紋理</label>
+        <select id="grain">
+          <option value="any" selected>不拘</option>
+          <option value="straight">直紋</option><option value="curly">渦紋</option><option value="knotty">節疤</option>
+        </select>
+      </div>
+      <div>
+        <label>保養意願</label>
+        <select id="maint">
+          <option value="low">低</option><option value="medium" selected>中</option><option value="high">高</option>
+        </select>
+      </div>
+      <div class="full">
+        <label>桌面尺寸（長×寬，cm）</label>
+        <input id="size" placeholder="180×90"/>
+      </div>
+      <div class="full">
+        <label>其他需求（選填）</label>
+        <textarea id="notes" rows="3" placeholder="偏愛直紋、需抗刮、2 週內交貨…"></textarea>
+      </div>
+    </div>
+
+    <div class="actions">
+      <button class="btn btn-secondary" id="reset">清除</button>
+      <button class="btn btn-primary" id="submit">送出</button>
+    </div>
+
+    <div class="preview hidden" id="preview"></div>
+  </div>
+</div>
+
+<script>
+  // ====== 1) 設定區：換成你的 LIFF_ID 與 n8n Webhook ======
+  const LIFF_ID = "YOUR_LIFF_ID";
+  const N8N_WEBHOOK = "https://your-n8n-domain/webhook/wood-recommender";
+
+  const $ = (id)=>document.getElementById(id);
+  const statusEl = $("status");
+  const previewEl = $("preview");
+
+  async function init(){
+    await liff.init({ liffId: LIFF_ID });
+    if(!liff.isLoggedIn()) liff.login();
+
+    // 取基本資訊
+    const prof = await liff.getProfile();
+    window._lineUserId = prof.userId; // 會話主索引
+  }
+
+  function setStatus(msg, loading=false){
+    statusEl.classList.remove("hidden");
+    statusEl.innerHTML = loading ? `<span class="spinner"></span> ${msg}` : msg;
+  }
+
+  $("reset").onclick = ()=>{ document.querySelectorAll("input,textarea").forEach(el=>el.value=""); };
+
+  $("submit").onclick = async ()=>{
+    try{
+      const budget = Number($("budget").value);
+      if(!budget){ alert("請填寫預算"); return; }
+
+      setStatus("已送出需求，AI 正在運算，稍後將把結果發到聊天室…", true);
+
+      const payload = {
+        lineUserId: window._lineUserId,
+        email: $("email").value.trim() || null,
+        budget,
+        hardness: Number($("hardness").value),
+        humidity: $("humidity").value ? Number($("humidity").value) : null,
+        usage: $("usage").value,
+        tone: $("tone").value,
+        grain: $("grain").value,
+        maintenance: $("maint").value,
+        size: $("size").value.trim(),
+        notes: $("notes").value.trim(),
+        ts: Date.now()
+      };
+
+      const res = await fetch(N8N_WEBHOOK, {
+        method:"POST",
+        headers:{ "Content-Type":"application/json" },
+        body: JSON.stringify(payload)
+      });
+      const data = await res.json().catch(()=>({}));
+
+      // （可選）若後端也回傳前端預覽資料就渲染，否則僅提示
+      if(Array.isArray(data.preview)){
+        previewEl.innerHTML = data.preview.map(it=>`
+          <div class="item">
+            ${it.image ? `<img src="${it.image}" alt="">` : `<div style="width:72px;height:72px;border:1px solid #eee;border-radius:10px;background:#fafafa"></div>`}
+            <div>
+              <div style="font-weight:600">${it.title||it.name}</div>
+              <div style="color:#555;font-size:13px">${it.reason||""}</div>
+              <div style="margin-top:6px;">
+                ${(it.badges||[]).slice(0,3).map(b=>`<span class="badge">${b}</span>`).join("")}
+              </div>
+              ${it.price?`<div style="margin-top:6px">參考價 NT$ ${it.price}</div>`:""}
+            </div>
+          </div>
+        `).join("");
+        previewEl.classList.remove("hidden");
+        setStatus("已收到預覽；完整卡片已送到聊天室 ✅");
+      }else{
+        setStatus("需求已送出，請切回聊天室查看卡片 ✅");
+      }
+
+      // （備選方案）若你的 LIFF App 有 chat_message.write，也可直接把訊息丟進聊天室：
+      // await liff.sendMessages([{ type:"text", text:"我們已收到你的需求，正在計算推薦！" }]);
+    }catch(e){
+      console.error(e);
+      setStatus("送出失敗，請稍後再試或改用人工客服。");
+    }
+  };
+
+  init();
+</script>
+</body>
+</html>
