@@ -26,10 +26,10 @@
     h1{font-size:20px;margin:0}
     p.desc{margin:6px 0 14px;color:var(--muted)}
     label{font-size:12px;color:#5b4a42;margin:6px 0 6px 2px;display:block}
-    input[type="text"], input[type="email"], input[type="number"], textarea, select{
+    input[type="text"], input[type="email"], input[type="tel"], textarea{
       width:100%;padding:12px 14px;border:1px solid var(--line);border-radius:12px;background:#fff;font-size:14px;outline:none;transition:.2s
     }
-    input:focus, textarea:focus, select:focus{box-shadow:0 0 0 3px rgba(166,124,82,.18);border-color:#d7c7b5}
+    input:focus, textarea:focus{box-shadow:0 0 0 3px rgba(166,124,82,.18);border-color:#d7c7b5}
     .row{margin:10px 0}
     .hint{font-size:12px;color:var(--muted);margin:4px 2px 0}
     .pill{display:inline-block;background:var(--chip);border:1px solid var(--line);padding:4px 8px;border-radius:999px;font-size:12px;margin-right:6px;color:#5b4a42}
@@ -61,14 +61,14 @@
     }
     .img-tile.active .check{display:block}
 
-    /* ===== 卡片化單選（預算/尺寸/濕度/硬度） ===== */
+    /* ===== 卡片化單選（預算/尺寸/濕度/硬度/用途） ===== */
     .chips{display:flex;flex-wrap:wrap;gap:8px}
     .chip{
       border:1px solid var(--line);background:var(--chip);padding:10px 12px;border-radius:999px;font-size:14px;cursor:pointer
     }
     .chip.active{background:var(--brand);color:#fff;border-color:transparent}
 
-    /* ===== 感謝頁 ===== */
+    /* ===== 感謝頁（自動關閉） ===== */
     .done{ text-align:center; padding:24px 12px }
     .done .check{
       width:64px;height:64px;border-radius:50%;
@@ -111,63 +111,67 @@
           <input id="email" type="email" placeholder="you@example.com"/>
         </div>
         <div class="row">
+          <label>電話（選填）</label>
+          <input id="phone" type="tel" placeholder="例：0912-345-678"/>
+        </div>
+        <div class="row">
           <label>居住地（城市/區域）</label>
           <input id="location" type="text" placeholder="例：台北市內湖區"/>
         </div>
       </div>
 
-      <!-- 預算區間 -->
+      <!-- 預算區間（預設不選） -->
       <div class="section">
         <label>預算（NT$）</label>
         <div id="budgetGroup" class="chips">
           <span class="chip" data-min="5000"  data-max="10000">5,000–10,000</span>
-          <span class="chip active" data-min="10000" data-max="20000">10,000–20,000</span>
+          <span class="chip" data-min="10000" data-max="20000">10,000–20,000</span>
           <span class="chip" data-min="20000" data-max="30000">20,000–30,000</span>
           <span class="chip" data-min="30000" data-max="50000">30,000–50,000</span>
           <span class="chip" data-min="50000" data-max="999999">50,000 以上</span>
         </div>
       </div>
 
-      <!-- 硬度偏好（比擬說明） -->
+      <!-- 硬度偏好（比擬說明；預設不選） -->
       <div class="section">
         <label>硬度偏好</label>
         <div id="hardnessGroup" class="chips">
           <span class="chip" data-val="1">柔軟（指甲易留痕）</span>
-          <span class="chip active" data-val="2">偏軟（銅幣可刮痕）</span>
+          <span class="chip" data-val="2">偏軟（銅幣可刮痕）</span>
           <span class="chip" data-val="3">適中（指甲略可留痕）</span>
           <span class="chip" data-val="4">偏硬（小刀才刮得動）</span>
           <span class="chip" data-val="5">很硬（日常工具難留痕）</span>
         </div>
-        <div class="hint">參考物：指甲≈2.5、銅幣≈3、小刀/玻璃≈5.5、鑽石=10（僅作直覺比擬）</div>
+        <div class="hint">參考物：指甲≈2.5、銅幣≈3、小刀/玻璃≈5.5、鑽石=10（直覺比擬）</div>
       </div>
 
-      <!-- 常態濕度（情境說明） -->
+      <!-- 常態濕度（預設不選） -->
       <div class="section">
         <label>居家常態濕度</label>
         <div id="humidityGroup" class="chips">
           <span class="chip" data-min="30" data-max="40">乾燥（冬季北方 30–40%）</span>
-          <span class="chip active" data-min="55" data-max="65">一般室內（冷氣除濕 55–65%）</span>
+          <span class="chip" data-min="55" data-max="65">一般室內（冷氣除濕 55–65%）</span>
           <span class="chip" data-min="70" data-max="85">潮濕（沿海/梅雨 70–85%）</span>
         </div>
       </div>
 
-      <!-- 用途 -->
+      <!-- 用途（預設不選） -->
       <div class="section">
         <label>用途</label>
         <div id="usageGroup" class="chips">
-          <span class="chip active" data-val="dining">餐桌</span>
+          <span class="chip" data-val="dining">餐桌</span>
           <span class="chip" data-val="desk">書桌</span>
           <span class="chip" data-val="meeting">會議桌</span>
           <span class="chip" data-val="workbench">工作台</span>
         </div>
       </div>
 
-      <!-- 色調（圖片） -->
+      <!-- 色調（圖片；預設不選） -->
       <div class="section">
         <label>色調</label>
         <div id="toneGroup" class="img-options">
-          <label class="img-tile active" data-val="any">
-            <input type="radio" name="tone" checked>
+          <label class="img-tile" data-val="any">
+            <input type="radio" name="tone">
             <img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTkstOR0_rUkWPyiJAvqNnmCxprxWqgbX4X05dqtg-tSAe-x5WPfWx4OjEK4cmMnSXL7ps&usqp=CAU" alt="不拘">
             <span>不拘</span><div class="check">已選</div>
           </label>
@@ -190,12 +194,12 @@
         <div class="hint">圖片僅示意，實際以木種與表面處理為準。</div>
       </div>
 
-      <!-- 紋理（圖片） -->
+      <!-- 紋理（圖片；預設不選） -->
       <div class="section">
         <label>紋理</label>
         <div id="grainGroup" class="img-options">
-          <label class="img-tile active" data-val="any">
-            <input type="radio" name="grain" checked>
+          <label class="img-tile" data-val="any">
+            <input type="radio" name="grain">
             <img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcR7e6Yy8cPzxaKm8uai-QJ3FNVhyw6LpKyGXg&s" alt="不拘">
             <span>不拘</span><div class="check">已選</div>
           </label>
@@ -217,11 +221,11 @@
         </div>
       </div>
 
-      <!-- 尺寸（固定選項 + 自訂） -->
+      <!-- 尺寸（固定選項 + 自訂；預設不選） -->
       <div class="section">
         <label>期望桌面尺寸（cm）</label>
         <div id="sizeGroup" class="chips">
-          <span class="chip active" data-val="180x90">180×90</span>
+          <span class="chip" data-val="180x90">180×90</span>
           <span class="chip" data-val="160x80">160×80</span>
           <span class="chip" data-val="200x90">200×90</span>
           <span class="chip" data-val="240x100">240×100</span>
@@ -247,16 +251,12 @@
       <div class="preview hidden" id="preview"></div>
     </div>
 
-    <!-- 感謝頁（送出後顯示） -->
+    <!-- 完成畫面（5 秒後自動關閉） -->
     <div id="doneArea" class="done hidden">
       <div class="check">✓</div>
-      <h2>需求已送出</h2>
-      <p>我們正在為你運算最合適的 TOP 5。</p>
-      <p class="small" style="color:var(--muted)">結果將透過 <b>官方 LINE</b> 發送給你。</p>
-      <div class="actions" style="margin-top:16px">
-        <button class="btn btn-primary" id="toChat">回到聊天室</button>
-        <button class="btn btn-secondary" id="reload">重新整理</button>
-      </div>
+      <h2>系統檢測中</h2>
+      <p>我們正在為你運算最合適的 TOP 5，並將透過官方 LINE 傳送。</p>
+      <p class="small" style="color:var(--muted)">本視窗將在 <b><span id="countdown">5</span> 秒</b> 後自動關閉。</p>
     </div>
 
   </div>
@@ -298,12 +298,26 @@
   }
   function clearStatus(){ statusEl.classList.add('hidden'); statusEl.innerHTML=''; }
 
-  // 切換到感謝頁
+  // 切換到完成頁並 5 秒後自動關閉
   function showDone(){
     clearStatus();
     document.getElementById('formArea').classList.add('hidden');
     document.getElementById('doneArea').classList.remove('hidden');
     window.scrollTo({top:0,behavior:'smooth'});
+
+    let sec = 5;
+    const c = document.getElementById('countdown');
+    const timer = setInterval(()=>{
+      sec--; if(c) c.textContent = String(sec);
+      if(sec<=0){
+        clearInterval(timer);
+        if (typeof liff !== 'undefined' && liff.closeWindow) {
+          liff.closeWindow();
+        } else {
+          window.close();
+        }
+      }
+    }, 1000);
   }
 
   // 初始化 LIFF
@@ -314,7 +328,7 @@
     window._lineUserId = prof.userId;
   }
 
-  // 綁定群組
+  // 綁定群組（預設不選）
   bindChipGroup('budgetGroup');
   bindChipGroup('hardnessGroup');
   bindChipGroup('humidityGroup');
@@ -327,64 +341,80 @@
     $("sizeCustomRow").classList.toggle('hidden', chip.dataset.val !== 'custom');
   });
 
-  // 清除
+  // 取得群組選擇（未選回 null）
+  const getActive = (sel)=>document.querySelector(`${sel} .active`);
+
+  // 清除（恢復全未選）
   $("reset").onclick = ()=>{
-    document.querySelectorAll("input[type='text'],input[type='email'],textarea").forEach(el=>el.value="");
-    // 重置預設 active
+    document.querySelectorAll("input[type='text'],input[type='email'],input[type='tel'],textarea").forEach(el=>el.value="");
     document.querySelectorAll('.chip').forEach(c=>c.classList.remove('active'));
-    document.querySelector('#budgetGroup .chip:nth-child(2)').classList.add('active');
-    document.querySelector('#hardnessGroup .chip:nth-child(2)').classList.add('active');
-    document.querySelector('#humidityGroup .chip:nth-child(2)').classList.add('active');
-    document.querySelector('#usageGroup .chip:nth-child(1)').classList.add('active');
-    document.querySelector('#sizeGroup .chip:nth-child(1)').classList.add('active');
-    $("sizeCustomRow").classList.add('hidden');
-    // 圖片組
     document.querySelectorAll('.img-options').forEach(g=>{
       g.querySelectorAll('.img-tile').forEach(t=>t.classList.remove('active'));
-      g.querySelector('.img-tile').classList.add('active'); // 第一個
     });
+    $("sizeCustomRow").classList.add('hidden');
     clearStatus(); previewEl.classList.add('hidden'); previewEl.innerHTML='';
   };
 
-  // 送出
+  // 送出（必填檢查 & 送出）
   $("submit").onclick = async ()=>{
     try{
       const btn = $("submit");
       btn.disabled = true;
 
-      // 取值：預算（min/max）
-      const budgetChip = document.querySelector('#budgetGroup .chip.active');
-      const budget = {
-        min: Number(budgetChip.dataset.min),
-        max: Number(budgetChip.dataset.max),
-        label: budgetChip.textContent.trim()
-      };
-      const hardness = Number(document.querySelector('#hardnessGroup .chip.active').dataset.val);
-      const humidityChip = document.querySelector('#humidityGroup .chip.active');
-      const humidity = { min:Number(humidityChip.dataset.min), max:Number(humidityChip.dataset.max) };
-      const usage = document.querySelector('#usageGroup .chip.active').dataset.val;
+      // 必填檢查：每個群組都需選擇
+      const need = [
+        { id:'#budgetGroup',   name:'預算' },
+        { id:'#hardnessGroup', name:'硬度偏好' },
+        { id:'#humidityGroup', name:'居家常態濕度' },
+        { id:'#usageGroup',    name:'用途' },
+        { id:'#toneGroup',     name:'色調',   img:true },
+        { id:'#grainGroup',    name:'紋理',   img:true },
+        { id:'#sizeGroup',     name:'期望桌面尺寸' }
+      ];
+      for(const n of need){
+        const act = n.img ? document.querySelector(`${n.id} .img-tile.active`) : getActive(n.id);
+        if(!act){
+          btn.disabled = false;
+          setStatus(`請先選擇「${n.name}」`, false);
+          document.querySelector(n.id).scrollIntoView({behavior:'smooth', block:'center'});
+          return;
+        }
+      }
 
-      const tone = document.querySelector('#toneGroup .img-tile.active').dataset.val;
+      // 取值
+      const budgetChip = getActive('#budgetGroup');
+      const budget = { min:Number(budgetChip.dataset.min), max:Number(budgetChip.dataset.max), label: budgetChip.textContent.trim() };
+
+      const hardness = Number(getActive('#hardnessGroup').dataset.val);
+
+      const humidityChip = getActive('#humidityGroup');
+      const humidity = { min:Number(humidityChip.dataset.min), max:Number(humidityChip.dataset.max) };
+
+      const usage = getActive('#usageGroup').dataset.val;
+
+      const tone  = document.querySelector('#toneGroup .img-tile.active').dataset.val;
       const grain = document.querySelector('#grainGroup .img-tile.active').dataset.val;
 
-      const sizeChip = document.querySelector('#sizeGroup .chip.active').dataset.val;
+      const sizeChip = getActive('#sizeGroup').dataset.val;
       const size = sizeChip==='custom' ? $("sizeCustom").value.trim() : sizeChip;
-      if(!size){ alert("請輸入或選擇尺寸"); btn.disabled=false; return; }
+      if(sizeChip==='custom' && !size){
+        btn.disabled=false;
+        setStatus('請輸入自訂尺寸（例如 210×95）');
+        $("sizeCustom").focus();
+        return;
+      }
 
       const payload = {
         lineUserId: window._lineUserId,
         email: $("email").value.trim() || null,
+        phone: $("phone").value.trim() || null,
         location: $("location").value.trim() || null,
-        budget,                 // {min,max,label}
-        hardness,               // 1~5
-        humidity,               // {min,max}
-        usage, tone, grain,
-        size,
+        budget, hardness, humidity, usage, tone, grain, size,
         notes: $("notes").value.trim() || null,
         ts: Date.now()
       };
 
-      setStatus("已送出需求，AI 正在運算，稍後將把結果發到聊天室…", true);
+      setStatus("系統檢測中，結果將透過官方 LINE 傳送給你…", true);
 
       const res = await fetch(N8N_WEBHOOK, {
         method:"POST",
@@ -393,8 +423,7 @@
       });
 
       if (res.ok) {
-        // 成功 → 切換為感謝頁（不再顯示表單與預覽）
-        showDone();
+        showDone();   // 成功 → 切換為完成頁並自動關閉
       } else {
         setStatus("送出失敗，請稍後再試或改用人工客服。");
         btn.disabled = false;
@@ -405,16 +434,6 @@
       $("submit").disabled = false;
     }
   };
-
-  // 感謝頁按鈕
-  document.addEventListener('click', (e)=>{
-    if(e.target && e.target.id==='toChat'){
-      if (typeof liff !== 'undefined' && liff.closeWindow) liff.closeWindow();
-    }
-    if(e.target && e.target.id==='reload'){
-      location.reload();
-    }
-  });
 
   // 啟動
   initLIFF();
