@@ -36,6 +36,7 @@
     .actions{display:flex;gap:10px;margin-top:16px}
     .btn{flex:1;padding:12px 14px;border-radius:12px;border:0;cursor:pointer;font-weight:700}
     .btn-primary{background:var(--brand);color:#fff}
+    .btn-primary[disabled]{opacity:.6;cursor:not-allowed}
     .btn-secondary{background:#e9e2da;color:#3b2f2f}
     .note{background:#f9f4ee;border:1px solid var(--line);border-radius:12px;padding:10px;font-size:14px;margin:12px 0;color:#3b2f2f}
     .hidden{display:none}
@@ -67,7 +68,21 @@
     }
     .chip.active{background:var(--brand);color:#fff;border-color:transparent}
 
-    /* ===== 預覽（可選） ===== */
+    /* ===== 感謝頁 ===== */
+    .done{ text-align:center; padding:24px 12px }
+    .done .check{
+      width:64px;height:64px;border-radius:50%;
+      background:var(--brand);color:#fff;
+      display:inline-flex;align-items:center;justify-content:center;
+      font-size:34px;margin:6px auto 10px;
+      box-shadow:0 8px 20px rgba(59,47,47,.25);animation:pop .6s ease both
+    }
+    @keyframes pop{ 0%{transform:scale(.6);opacity:0} 100%{transform:scale(1);opacity:1} }
+    .done h2{ margin:10px 0 6px;font-size:20px }
+    .done p{ margin:6px 0 0 }
+    .small{ font-size:12px }
+
+    /* ===== 預覽（保留但送出後不顯示） ===== */
     .preview{margin-top:12px;display:grid;grid-template-columns:1fr;gap:10px}
     .item{border:1px solid var(--line);border-radius:12px;padding:10px;display:flex;gap:10px;background:#fff}
     .item img{width:72px;height:72px;object-fit:cover;border-radius:10px;border:1px solid var(--line)}
@@ -85,154 +100,170 @@
       </div>
     </div>
 
-    <div id="status" class="note hidden"></div>
+    <!-- 表單區（送出前可見） -->
+    <div id="formArea">
+      <div id="status" class="note hidden"></div>
 
-    <!-- 基本資訊 -->
-    <div class="section">
-      <div class="row">
-        <label>Email（選填）</label>
-        <input id="email" type="email" placeholder="you@example.com"/>
+      <!-- 基本資訊 -->
+      <div class="section">
+        <div class="row">
+          <label>Email（選填）</label>
+          <input id="email" type="email" placeholder="you@example.com"/>
+        </div>
+        <div class="row">
+          <label>居住地（城市/區域）</label>
+          <input id="location" type="text" placeholder="例：台北市內湖區"/>
+        </div>
       </div>
-      <div class="row">
-        <label>居住地（城市/區域）</label>
-        <input id="location" type="text" placeholder="例：台北市內湖區"/>
+
+      <!-- 預算區間 -->
+      <div class="section">
+        <label>預算（NT$）</label>
+        <div id="budgetGroup" class="chips">
+          <span class="chip" data-min="5000"  data-max="10000">5,000–10,000</span>
+          <span class="chip active" data-min="10000" data-max="20000">10,000–20,000</span>
+          <span class="chip" data-min="20000" data-max="30000">20,000–30,000</span>
+          <span class="chip" data-min="30000" data-max="50000">30,000–50,000</span>
+          <span class="chip" data-min="50000" data-max="999999">50,000 以上</span>
+        </div>
+      </div>
+
+      <!-- 硬度偏好（比擬說明） -->
+      <div class="section">
+        <label>硬度偏好</label>
+        <div id="hardnessGroup" class="chips">
+          <span class="chip" data-val="1">柔軟（指甲易留痕）</span>
+          <span class="chip active" data-val="2">偏軟（銅幣可刮痕）</span>
+          <span class="chip" data-val="3">適中（指甲略可留痕）</span>
+          <span class="chip" data-val="4">偏硬（小刀才刮得動）</span>
+          <span class="chip" data-val="5">很硬（日常工具難留痕）</span>
+        </div>
+        <div class="hint">參考物：指甲≈2.5、銅幣≈3、小刀/玻璃≈5.5、鑽石=10（僅作直覺比擬）</div>
+      </div>
+
+      <!-- 常態濕度（情境說明） -->
+      <div class="section">
+        <label>居家常態濕度</label>
+        <div id="humidityGroup" class="chips">
+          <span class="chip" data-min="30" data-max="40">乾燥（冬季北方 30–40%）</span>
+          <span class="chip active" data-min="55" data-max="65">一般室內（冷氣除濕 55–65%）</span>
+          <span class="chip" data-min="70" data-max="85">潮濕（沿海/梅雨 70–85%）</span>
+        </div>
+      </div>
+
+      <!-- 用途 -->
+      <div class="section">
+        <label>用途</label>
+        <div id="usageGroup" class="chips">
+          <span class="chip active" data-val="dining">餐桌</span>
+          <span class="chip" data-val="desk">書桌</span>
+          <span class="chip" data-val="meeting">會議桌</span>
+          <span class="chip" data-val="workbench">工作台</span>
+        </div>
+      </div>
+
+      <!-- 色調（圖片） -->
+      <div class="section">
+        <label>色調</label>
+        <div id="toneGroup" class="img-options">
+          <label class="img-tile active" data-val="any">
+            <input type="radio" name="tone" checked>
+            <img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTkstOR0_rUkWPyiJAvqNnmCxprxWqgbX4X05dqtg-tSAe-x5WPfWx4OjEK4cmMnSXL7ps&usqp=CAU" alt="不拘">
+            <span>不拘</span><div class="check">已選</div>
+          </label>
+          <label class="img-tile" data-val="light">
+            <input type="radio" name="tone">
+            <img src="https://shoplineimg.com/5aedc6948d1db923ec006b66/6756c488298b07000a27802f/720x.jpeg?" alt="淺色">
+            <span>淺色</span><div class="check">已選</div>
+          </label>
+          <label class="img-tile" data-val="medium">
+            <input type="radio" name="tone">
+            <img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSePnW-NcXAUP2s0rtPMXCJ7X27ty-ROqaigw&s" alt="中性">
+            <span>中性</span><div class="check">已選</div>
+          </label>
+          <label class="img-tile" data-val="dark">
+            <input type="radio" name="tone">
+            <img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSpxHG4ouOhhEBqvClzgJIjmTN6NygXsjVIWw&s" alt="深色">
+            <span>深色</span><div class="check">已選</div>
+          </label>
+        </div>
+        <div class="hint">圖片僅示意，實際以木種與表面處理為準。</div>
+      </div>
+
+      <!-- 紋理（圖片） -->
+      <div class="section">
+        <label>紋理</label>
+        <div id="grainGroup" class="img-options">
+          <label class="img-tile active" data-val="any">
+            <input type="radio" name="grain" checked>
+            <img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcR7e6Yy8cPzxaKm8uai-QJ3FNVhyw6LpKyGXg&s" alt="不拘">
+            <span>不拘</span><div class="check">已選</div>
+          </label>
+          <label class="img-tile" data-val="straight">
+            <input type="radio" name="grain">
+            <img src="https://shoplineimg.com/5aedc6948d1db923ec006b66/6756c488298b07000a27802f/720x.jpeg?" alt="直紋">
+            <span>直紋</span><div class="check">已選</div>
+          </label>
+          <label class="img-tile" data-val="curly">
+            <input type="radio" name="grain">
+            <img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRsG9VTLT-RWNFGnK5T_k06nsdIK7NecvSjkQ&s" alt="渦紋/虎斑">
+            <span>渦紋/虎斑</span><div class="check">已選</div>
+          </label>
+          <label class="img-tile" data-val="knotty">
+            <input type="radio" name="grain">
+            <img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQflfH6KdyGOXGc86-8hnLXngOzAp1jFmhD4Q&s" alt="節疤感">
+            <span>節疤感</span><div class="check">已選</div>
+          </label>
+        </div>
+      </div>
+
+      <!-- 尺寸（固定選項 + 自訂） -->
+      <div class="section">
+        <label>期望桌面尺寸（cm）</label>
+        <div id="sizeGroup" class="chips">
+          <span class="chip active" data-val="180x90">180×90</span>
+          <span class="chip" data-val="160x80">160×80</span>
+          <span class="chip" data-val="200x90">200×90</span>
+          <span class="chip" data-val="240x100">240×100</span>
+          <span class="chip" data-val="custom">自訂</span>
+        </div>
+        <div id="sizeCustomRow" class="row hidden">
+          <input id="sizeCustom" type="text" placeholder="請輸入尺寸，例如 210×95"/>
+        </div>
+      </div>
+
+      <!-- 其他需求 -->
+      <div class="section">
+        <label>其他需求（選填）</label>
+        <textarea id="notes" rows="3" placeholder="例：偏愛直紋、需抗刮、2 週內交貨…"></textarea>
+      </div>
+
+      <div class="actions">
+        <button class="btn btn-secondary" id="reset">清除</button>
+        <button class="btn btn-primary" id="submit">送出</button>
+      </div>
+
+      <!-- （可選）結果預覽：保留，但送出成功後改顯示感謝頁 -->
+      <div class="preview hidden" id="preview"></div>
+    </div>
+
+    <!-- 感謝頁（送出後顯示） -->
+    <div id="doneArea" class="done hidden">
+      <div class="check">✓</div>
+      <h2>需求已送出</h2>
+      <p>我們正在為你運算最合適的 TOP 5。</p>
+      <p class="small" style="color:var(--muted)">結果將透過 <b>官方 LINE</b> 發送給你。</p>
+      <div class="actions" style="margin-top:16px">
+        <button class="btn btn-primary" id="toChat">回到聊天室</button>
+        <button class="btn btn-secondary" id="reload">重新整理</button>
       </div>
     </div>
 
-    <!-- 預算區間 -->
-    <div class="section">
-      <label>預算（NT$）</label>
-      <div id="budgetGroup" class="chips">
-        <span class="chip" data-min="5000"  data-max="10000">5,000–10,000</span>
-        <span class="chip active" data-min="10000" data-max="20000">10,000–20,000</span>
-        <span class="chip" data-min="20000" data-max="30000">20,000–30,000</span>
-        <span class="chip" data-min="30000" data-max="50000">30,000–50,000</span>
-        <span class="chip" data-min="50000" data-max="999999">50,000 以上</span>
-      </div>
-    </div>
-
-    <!-- 硬度偏好（比擬說明） -->
-    <div class="section">
-      <label>硬度偏好</label>
-      <div id="hardnessGroup" class="chips">
-        <span class="chip" data-val="1">柔軟（指甲易留痕）</span>
-        <span class="chip active" data-val="2">偏軟（銅幣可刮痕）</span>
-        <span class="chip" data-val="3">適中（指甲略可留痕）</span>
-        <span class="chip" data-val="4">偏硬（小刀才刮得動）</span>
-        <span class="chip" data-val="5">很硬（日常工具難留痕）</span>
-      </div>
-      <div class="hint">參考物：指甲≈2.5、銅幣≈3、小刀/玻璃≈5.5、鑽石=10（僅作直覺比擬）</div>
-    </div>
-
-    <!-- 常態濕度（情境說明） -->
-    <div class="section">
-      <label>居家常態濕度</label>
-      <div id="humidityGroup" class="chips">
-        <span class="chip" data-min="30" data-max="40">乾燥（冬季北方 30–40%）</span>
-        <span class="chip active" data-min="55" data-max="65">一般室內（冷氣除濕 55–65%）</span>
-        <span class="chip" data-min="70" data-max="85">潮濕（沿海/梅雨 70–85%）</span>
-      </div>
-    </div>
-
-    <!-- 用途 -->
-    <div class="section">
-      <label>用途</label>
-      <div id="usageGroup" class="chips">
-        <span class="chip active" data-val="dining">餐桌</span>
-        <span class="chip" data-val="desk">書桌</span>
-        <span class="chip" data-val="meeting">會議桌</span>
-        <span class="chip" data-val="workbench">工作台</span>
-      </div>
-    </div>
-
-    <!-- 色調（圖片） -->
-    <div class="section">
-      <label>色調</label>
-      <div id="toneGroup" class="img-options">
-        <label class="img-tile active" data-val="any">
-          <input type="radio" name="tone" checked>
-          <img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTkstOR0_rUkWPyiJAvqNnmCxprxWqgbX4X05dqtg-tSAe-x5WPfWx4OjEK4cmMnSXL7ps&usqp=CAU" alt="不拘">
-          <span>不拘</span><div class="check">已選</div>
-        </label>
-        <label class="img-tile" data-val="light">
-          <input type="radio" name="tone">
-          <img src="https://shoplineimg.com/5aedc6948d1db923ec006b66/6756c488298b07000a27802f/720x.jpeg?" alt="淺色">
-          <span>淺色</span><div class="check">已選</div>
-        </label>
-        <label class="img-tile" data-val="medium">
-          <input type="radio" name="tone">
-          <img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSePnW-NcXAUP2s0rtPMXCJ7X27ty-ROqaigw&s" alt="中性">
-          <span>中性</span><div class="check">已選</div>
-        </label>
-        <label class="img-tile" data-val="dark">
-          <input type="radio" name="tone">
-          <img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSpxHG4ouOhhEBqvClzgJIjmTN6NygXsjVIWw&s" alt="深色">
-          <span>深色</span><div class="check">已選</div>
-        </label>
-      </div>
-      <div class="hint">圖片僅示意，實際以木種與表面處理為準。</div>
-    </div>
-
-    <!-- 紋理（圖片） -->
-    <div class="section">
-      <label>紋理</label>
-      <div id="grainGroup" class="img-options">
-        <label class="img-tile active" data-val="any">
-          <input type="radio" name="grain" checked>
-          <img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcR7e6Yy8cPzxaKm8uai-QJ3FNVhyw6LpKyGXg&s" alt="不拘">
-          <span>不拘</span><div class="check">已選</div>
-        </label>
-        <label class="img-tile" data-val="straight">
-          <input type="radio" name="grain">
-          <img src="https://shoplineimg.com/5aedc6948d1db923ec006b66/6756c488298b07000a27802f/720x.jpeg?" alt="直紋">
-          <span>直紋</span><div class="check">已選</div>
-        </label>
-        <label class="img-tile" data-val="curly">
-          <input type="radio" name="grain">
-          <img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRsG9VTLT-RWNFGnK5T_k06nsdIK7NecvSjkQ&s" alt="渦紋/虎斑">
-          <span>渦紋/虎斑</span><div class="check">已選</div>
-        </label>
-        <label class="img-tile" data-val="knotty">
-          <input type="radio" name="grain">
-          <img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQflfH6KdyGOXGc86-8hnLXngOzAp1jFmhD4Q&s" alt="節疤感">
-          <span>節疤感</span><div class="check">已選</div>
-        </label>
-      </div>
-    </div>
-
-    <!-- 尺寸（固定選項 + 自訂） -->
-    <div class="section">
-      <label>期望桌面尺寸（cm）</label>
-      <div id="sizeGroup" class="chips">
-        <span class="chip active" data-val="180x90">180×90</span>
-        <span class="chip" data-val="160x80">160×80</span>
-        <span class="chip" data-val="200x90">200×90</span>
-        <span class="chip" data-val="240x100">240×100</span>
-        <span class="chip" data-val="custom">自訂</span>
-      </div>
-      <div id="sizeCustomRow" class="row hidden">
-        <input id="sizeCustom" type="text" placeholder="請輸入尺寸，例如 210×95"/>
-      </div>
-    </div>
-
-    <!-- 其他需求 -->
-    <div class="section">
-      <label>其他需求（選填）</label>
-      <textarea id="notes" rows="3" placeholder="例：偏愛直紋、需抗刮、2 週內交貨…"></textarea>
-    </div>
-
-    <div class="actions">
-      <button class="btn btn-secondary" id="reset">清除</button>
-      <button class="btn btn-primary" id="submit">送出</button>
-    </div>
-
-    <!-- （可選）結果預覽 -->
-    <div class="preview hidden" id="preview"></div>
   </div>
 </div>
 
 <script>
-  // ===== 必改：LIFF 與 n8n Webhook =====
+  // ===== 已替換：LIFF 與 n8n Webhook =====
   const LIFF_ID = "2008055834-dzj3yJYv";
   const N8N_WEBHOOK = "https://xin03.zeabur.app/webhook/umu";
 
@@ -265,6 +296,15 @@
     statusEl.classList.remove("hidden");
     statusEl.innerHTML = loading ? `<span class="spinner"></span> ${msg}` : msg;
   }
+  function clearStatus(){ statusEl.classList.add('hidden'); statusEl.innerHTML=''; }
+
+  // 切換到感謝頁
+  function showDone(){
+    clearStatus();
+    document.getElementById('formArea').classList.add('hidden');
+    document.getElementById('doneArea').classList.remove('hidden');
+    window.scrollTo({top:0,behavior:'smooth'});
+  }
 
   // 初始化 LIFF
   async function initLIFF(){
@@ -275,10 +315,10 @@
   }
 
   // 綁定群組
-  const budgetEl = bindChipGroup('budgetGroup');
-  const hardnessEl = bindChipGroup('hardnessGroup');
-  const humidityEl = bindChipGroup('humidityGroup');
-  const usageEl = bindChipGroup('usageGroup', null);
+  bindChipGroup('budgetGroup');
+  bindChipGroup('hardnessGroup');
+  bindChipGroup('humidityGroup');
+  bindChipGroup('usageGroup');
   bindImgOptions('toneGroup');
   bindImgOptions('grainGroup');
 
@@ -290,7 +330,7 @@
   // 清除
   $("reset").onclick = ()=>{
     document.querySelectorAll("input[type='text'],input[type='email'],textarea").forEach(el=>el.value="");
-    // 重置預設 active（簡化處理）
+    // 重置預設 active
     document.querySelectorAll('.chip').forEach(c=>c.classList.remove('active'));
     document.querySelector('#budgetGroup .chip:nth-child(2)').classList.add('active');
     document.querySelector('#hardnessGroup .chip:nth-child(2)').classList.add('active');
@@ -303,12 +343,15 @@
       g.querySelectorAll('.img-tile').forEach(t=>t.classList.remove('active'));
       g.querySelector('.img-tile').classList.add('active'); // 第一個
     });
-    statusEl.classList.add('hidden'); previewEl.classList.add('hidden'); previewEl.innerHTML='';
+    clearStatus(); previewEl.classList.add('hidden'); previewEl.innerHTML='';
   };
 
   // 送出
   $("submit").onclick = async ()=>{
     try{
+      const btn = $("submit");
+      btn.disabled = true;
+
       // 取值：預算（min/max）
       const budgetChip = document.querySelector('#budgetGroup .chip.active');
       const budget = {
@@ -326,8 +369,7 @@
 
       const sizeChip = document.querySelector('#sizeGroup .chip.active').dataset.val;
       const size = sizeChip==='custom' ? $("sizeCustom").value.trim() : sizeChip;
-
-      if(!size){ alert("請輸入或選擇尺寸"); return; }
+      if(!size){ alert("請輸入或選擇尺寸"); btn.disabled=false; return; }
 
       const payload = {
         lineUserId: window._lineUserId,
@@ -349,31 +391,30 @@
         headers:{ "Content-Type":"application/json" },
         body: JSON.stringify(payload)
       });
-      const data = await res.json().catch(()=>({}));
 
-      // （可選）若後端回預覽
-      if(Array.isArray(data.preview)){
-        previewEl.innerHTML = data.preview.map(it=>`
-          <div class="item">
-            ${it.image ? `<img src="${it.image}" alt="">` : `<div style="width:72px;height:72px;border:1px solid var(--line);border-radius:10px;background:#fafafa"></div>`}
-            <div>
-              <div style="font-weight:700">${it.title||it.name}</div>
-              <div style="color:var(--muted);font-size:13px">${it.reason||""}</div>
-              ${it.price?`<div style="margin-top:6px">參考價 NT$ ${it.price}</div>`:""}
-              ${(it.badges||[]).slice(0,3).map(b=>`<span class="pill">${b}</span>`).join("")}
-            </div>
-          </div>
-        `).join("");
-        previewEl.classList.remove("hidden");
-        setStatus("已收到預覽；完整卡片已送到聊天室 ✅");
-      }else{
-        setStatus("需求已送出，請切回聊天室查看卡片 ✅");
+      if (res.ok) {
+        // 成功 → 切換為感謝頁（不再顯示表單與預覽）
+        showDone();
+      } else {
+        setStatus("送出失敗，請稍後再試或改用人工客服。");
+        btn.disabled = false;
       }
     }catch(e){
       console.error(e);
       setStatus("送出失敗，請稍後再試或改用人工客服。");
+      $("submit").disabled = false;
     }
   };
+
+  // 感謝頁按鈕
+  document.addEventListener('click', (e)=>{
+    if(e.target && e.target.id==='toChat'){
+      if (typeof liff !== 'undefined' && liff.closeWindow) liff.closeWindow();
+    }
+    if(e.target && e.target.id==='reload'){
+      location.reload();
+    }
+  });
 
   // 啟動
   initLIFF();
